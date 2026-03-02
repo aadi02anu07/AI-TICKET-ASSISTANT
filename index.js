@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express"
 import mongoose from "mongoose"
 import cors from "cors" //acts as a middleware between front end and backend cause both are running at different ports/url
@@ -13,4 +15,4 @@ mongoose
         console.log("MongoDB connected ✅");
         app.listen(PORT, () => console.log("🚀 Server at http://localhost:3000"))
     })
-    .cactch((err) => console.error("❌ MONGODB error:", err))
+    .catch((err) => console.error("❌ MONGODB error:", err))
