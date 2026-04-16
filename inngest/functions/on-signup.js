@@ -13,7 +13,7 @@ export const onUserSignup = inngest.createFunction(
                 const userObject = await User.findOne({ email })
                 if (!userObject) {
                     throw new NonRetriableError("User no longer exists in our database")    //so basically we are unable to find the user in our database so there is no point in running it again and again
-                }
+                }   //we get NonRetriableError from ingest and it will not retry the function again if we throw this error
                 return userObject
             })
 
