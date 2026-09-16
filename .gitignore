@@ -1,0 +1,77 @@
+# Dependencies
+node_modules/
+ai-ticket-assistant/node_modules/
+ai-ticket-frontend/node_modules/
+/.pnp
+.pnp.js
+
+# Environment & Secrets
+.env
+.env.local
+ai-ticket-assistant/.env
+ai-ticket-frontend/.env
+*.env
+*.env.*
+
+# Production & Build Outputs
+dist/
+dist-ssr/
+build/
+out/
+.next/
+
+# ==========================================
+# Logs & Debugging
+# ==========================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Coverage & Testing
+coverage/
+*.lcov
+.nyc_output/
+
+# Caches
+.cache/
+.eslintcache
+.parcel-cache/
+.vite/
+*.tsbuildinfo
+
+# IDE & Editor Files
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swo
+*.swp
+*.sublime-project
+*.sublime-workspace
+
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Temporary & Process Files
+*.pid
+*.seed
+*.pid.lock
+
+# Documentation & Project-Specific Files
+readme.md
