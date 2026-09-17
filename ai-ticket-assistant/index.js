@@ -20,6 +20,14 @@ app.use(express.json());
 app.use("/api/auth", userRoutes);
 app.use("/api/tickets", ticketRoutes);
 
+app.get(["/api/health", "/health"], (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
 app.get("/api/test", (req, res) => {
   res.json({ message: "AI Ticket Assistant API is running" });
 });
