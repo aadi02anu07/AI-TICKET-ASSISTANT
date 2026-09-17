@@ -8,6 +8,15 @@ export default function Tickets() {
 
   const token = localStorage.getItem("token");
 
+  let currentUser = null;
+  try {
+    const stored = localStorage.getItem("user");
+    if (stored) currentUser = JSON.parse(stored);
+  } catch (err) {
+    console.error(err);
+  }
+  const isAdmin = currentUser?.role === "admin";
+
   const fetchTickets = async () => {
     try {
       const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/tickets`, {
@@ -18,6 +27,32 @@ export default function Tickets() {
       setTickets(data.tickets || []);
     } catch (err) {
       console.error("Failed to fetch tickets:", err);
+    }
+  };
+
+  const handleDeleteTicket = async (e, ticketId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!window.confirm("Are you sure you want to permanently delete this ticket?")) return;
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_SERVER_URL}/tickets/${ticketId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await res.json();
+      if (res.ok) {
+        fetchTickets();
+      } else {
+        alert(data.message || "Failed to delete ticket");
+      }
+    } catch (err) {
+      console.error("Error deleting ticket:", err);
+      alert("Failed to delete ticket");
     }
   };
 
@@ -87,17 +122,29 @@ export default function Tickets() {
       <h2 className="text-xl font-semibold mb-2">All Tickets</h2>
       <div className="space-y-3">
         {tickets.map((ticket) => (
-          <Link
+          <div
             key={ticket._id}
-            className="card shadow-md p-4 bg-gray-800"
-            to={`/tickets/${ticket._id}`}
+            className="card shadow-md p-4 bg-gray-800 flex flex-row items-center justify-between"
           >
-            <h3 className="font-bold text-lg">{ticket.title}</h3>
-            <p className="text-sm">{ticket.description}</p>
-            <p className="text-sm text-gray-500">
-              Created At: {new Date(ticket.createdAt).toLocaleString()}
-            </p>
-          </Link>
+            <Link
+              to={`/tickets/${ticket._id}`}
+              className="flex-1 pr-4"
+            >
+              <h3 className="font-bold text-lg">{ticket.title}</h3>
+              <p className="text-sm">{ticket.description}</p>
+              <p className="text-sm text-gray-500">
+                Created At: {new Date(ticket.createdAt).toLocaleString()}
+              </p>
+            </Link>
+            {isAdmin && (
+              <button
+                onClick={(e) => handleDeleteTicket(e, ticket._id)}
+                className="btn btn-error btn-xs"
+              >
+                Delete
+              </button>
+            )}
+          </div>
         ))}
         {tickets.length === 0 && <p>No tickets submitted yet.</p>}
       </div>

@@ -11,6 +11,16 @@ export default function TicketDetailsPage() {
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
+  let currentUser = null;
+  try {
+    const stored = localStorage.getItem("user");
+    if (stored) currentUser = JSON.parse(stored);
+  } catch (err) {
+    console.error(err);
+  }
+  const isAdmin = currentUser?.role === "admin";
+  const [deleting, setDeleting] = useState(false);
+
   useEffect(() => {
     const fetchTicket = async () => {
       try {
@@ -37,7 +47,37 @@ export default function TicketDetailsPage() {
     };
 
     fetchTicket();
-  }, [id]);
+  }, [id, token]);
+
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to permanently delete this ticket?")) {
+      return;
+    }
+    setDeleting(true);
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_SERVER_URL}/tickets/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await res.json();
+      if (res.ok) {
+        alert("Ticket deleted successfully");
+        navigate("/");
+      } else {
+        alert(data.message || "Failed to delete ticket");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong deleting the ticket");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const handleResolve = async () => {
     if (!window.confirm("Mark this ticket as resolved?")) return;
@@ -140,15 +180,27 @@ export default function TicketDetailsPage() {
               </p>
             )}
 
-            {ticket.status !== "RESOLVED" && (
-              <button
-                onClick={handleResolve}
-                disabled={resolving}
-                className="btn btn-success btn-sm mt-2"
-              >
-                {resolving ? "Resolving..." : "Mark as Resolved"}
-              </button>
-            )}
+            <div className="flex gap-2 items-center mt-3 pt-2">
+              {ticket.status !== "RESOLVED" && (
+                <button
+                  onClick={handleResolve}
+                  disabled={resolving}
+                  className="btn btn-success btn-sm"
+                >
+                  {resolving ? "Resolving..." : "Mark as Resolved"}
+                </button>
+              )}
+
+              {isAdmin && (
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="btn btn-error btn-sm"
+                >
+                  {deleting ? "Deleting..." : "Delete Ticket"}
+                </button>
+              )}
+            </div>
 
             {ticket.status === "RESOLVED" && (
               <p className="text-green-400 font-semibold mt-2">

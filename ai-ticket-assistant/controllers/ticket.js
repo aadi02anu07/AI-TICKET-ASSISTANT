@@ -121,3 +121,26 @@ export const resolveTicket = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+export const deleteTicket = async (req, res) => {
+  try {
+    const user = req.user;
+
+    if (user?.role !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "Forbidden: Only admins can delete tickets" });
+    }
+
+    const ticket = await Ticket.findByIdAndDelete(req.params.id);
+
+    if (!ticket) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+
+    return res.status(200).json({ message: "Ticket deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting ticket", error.message);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
