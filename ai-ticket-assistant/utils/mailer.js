@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-export const sendMail = async (to, subject, text) => {
+export const sendMail = async (to, subject, text, html) => {
   try {
     const transporter = nodemailer.createTransport({
       host: process.env.MAILTRAP_SMTP_HOST,
@@ -12,12 +12,15 @@ export const sendMail = async (to, subject, text) => {
       },
     });
 
-    const info = await transporter.sendMail({
-      from: '"Inngest TMS" <noreply@ticketing.com>',
+    const mailOptions = {
+      from: '"Ticket AI Support" <noreply@ticketing.com>',
       to,
       subject,
       text,
-    });
+    };
+    if (html) mailOptions.html = html;
+
+    const info = await transporter.sendMail(mailOptions);
 
     console.log("Message sent:", info.messageId);
     return info;

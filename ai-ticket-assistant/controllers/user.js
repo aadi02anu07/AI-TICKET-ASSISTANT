@@ -20,7 +20,7 @@ export const signup = async (req, res) => {
     });
 
     const token = jwt.sign(
-      { _id: user._id, role: user.role },
+      { _id: user._id, role: user.role, email: user.email },
       process.env.JWT_SECRET
     );
 
@@ -44,7 +44,7 @@ export const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { _id: user._id, role: user.role },
+      { _id: user._id, role: user.role, email: user.email },
       process.env.JWT_SECRET
     );
 
@@ -76,9 +76,17 @@ export const updateUser = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(401).json({ error: "User not found" });
 
+    const targetRole = role || user.role;
+
+    // Standard users cannot have skills assigned
+    let targetSkills = [];
+    if (targetRole !== "user") {
+      targetSkills = skills.length ? skills : user.skills;
+    }
+
     await User.updateOne(
       { email },
-      { skills: skills.length ? skills : user.skills, role }
+      { skills: targetSkills, role: targetRole }
     );
     return res.json({ message: "User updated successfully" });
   } catch (error) {
@@ -150,16 +158,20 @@ export const createModerator = async (req, res) => {
     const userPassword = password || "moderator123";
     const hashed = await brcypt.hash(userPassword, 10);
 
-    const parsedSkills = Array.isArray(skills)
-      ? skills
-      : typeof skills === "string"
-      ? skills.split(",").map((s) => s.trim()).filter(Boolean)
-      : [];
+    const targetRole = role || "moderator";
+    const parsedSkills =
+      targetRole === "user"
+        ? []
+        : Array.isArray(skills)
+        ? skills
+        : typeof skills === "string"
+        ? skills.split(",").map((s) => s.trim()).filter(Boolean)
+        : [];
 
     const user = await User.create({
       email: email.toLowerCase().trim(),
       password: hashed,
-      role: role || "moderator",
+      role: targetRole,
       skills: parsedSkills,
     });
 

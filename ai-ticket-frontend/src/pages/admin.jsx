@@ -99,7 +99,7 @@ export default function AdminPanel() {
     setEditingUser(user.email);
     setFormData({
       role: user.role,
-      skills: user.skills?.join(", "),
+      skills: user.role === "user" ? "" : user.skills?.join(", ") || "",
     });
   };
 
@@ -137,6 +137,14 @@ export default function AdminPanel() {
 
   const handleUpdate = async () => {
     try {
+      const skillsToSend =
+        formData.role === "user"
+          ? []
+          : formData.skills
+              .split(",")
+              .map((skill) => skill.trim())
+              .filter(Boolean);
+
       const res = await fetch(
         `${import.meta.env.VITE_SERVER_URL}/auth/update-user`,
         {
@@ -148,17 +156,14 @@ export default function AdminPanel() {
           body: JSON.stringify({
             email: editingUser,
             role: formData.role,
-            skills: formData.skills
-              .split(",")
-              .map((skill) => skill.trim())
-              .filter(Boolean),
+            skills: skillsToSend,
           }),
         }
       );
 
       const data = await res.json();
       if (!res.ok) {
-        console.error(data.error || "Failed to update user");
+        alert(data.error || "Failed to update user");
         return;
       }
 
@@ -167,6 +172,7 @@ export default function AdminPanel() {
       fetchUsers();
     } catch (err) {
       console.error("Update failed", err);
+      alert("Something went wrong while updating user");
     }
   };
 
@@ -247,18 +253,26 @@ export default function AdminPanel() {
               <label className="text-sm font-medium block mb-1">
                 Skills{" "}
                 <span className="text-xs text-gray-500 font-normal">
-                  (Comma-separated, e.g. react, nodejs, support)
+                  {addForm.role === "user"
+                    ? "(Not applicable for Users)"
+                    : "(Comma-separated, e.g. react, nodejs, support)"}
                 </span>
               </label>
-              <input
-                type="text"
-                placeholder="react, nodejs, mongodb"
-                className="input input-bordered w-full"
-                value={addForm.skills}
-                onChange={(e) =>
-                  setAddForm({ ...addForm, skills: e.target.value })
-                }
-              />
+              {addForm.role === "user" ? (
+                <div className="p-2.5 bg-gray-900/40 rounded border border-dashed border-gray-700 text-xs text-gray-400">
+                  ⚠️ Skills cannot be assigned to standard users.
+                </div>
+              ) : (
+                <input
+                  type="text"
+                  placeholder="react, nodejs, mongodb"
+                  className="input input-bordered w-full"
+                  value={addForm.skills}
+                  onChange={(e) =>
+                    setAddForm({ ...addForm, skills: e.target.value })
+                  }
+                />
+              )}
             </div>
 
             <div className="flex gap-2 pt-2">
@@ -267,7 +281,7 @@ export default function AdminPanel() {
                 className="btn btn-success btn-sm"
                 disabled={addLoading}
               >
-                {addLoading ? "Creating..." : "Create Moderator"}
+                {addLoading ? "Creating..." : "Create Account"}
               </button>
               <button
                 type="button"
@@ -302,40 +316,81 @@ export default function AdminPanel() {
             )}
           </div>
           <p>
-            <strong>Current Role:</strong> {user.role}
+            <strong>Current Role:</strong>{" "}
+            <span
+              className={`badge badge-sm font-semibold ml-1 ${
+                user.role === "admin"
+                  ? "badge-primary"
+                  : user.role === "moderator"
+                  ? "badge-secondary"
+                  : "badge-ghost"
+              }`}
+            >
+              {user.role}
+            </span>
           </p>
           <p>
             <strong>Skills:</strong>{" "}
-            {user.skills && user.skills.length > 0
-              ? user.skills.join(", ")
-              : "N/A"}
+            {user.role === "user" ? (
+              <span className="text-gray-500 italic text-sm">
+                N/A (Standard users do not have skills)
+              </span>
+            ) : user.skills && user.skills.length > 0 ? (
+              user.skills.join(", ")
+            ) : (
+              <span className="text-gray-500 italic text-sm">None</span>
+            )}
           </p>
 
           {editingUser === user.email ? (
-            <div className="mt-4 space-y-2">
-              <select
-                className="select select-bordered w-full"
-                value={formData.role}
-                onChange={(e) =>
-                  setFormData({ ...formData, role: e.target.value })
-                }
-              >
-                <option value="user">User</option>
-                <option value="moderator">Moderator</option>
-                <option value="admin">Admin</option>
-              </select>
+            <div className="mt-4 space-y-3 bg-base-200 p-3 rounded-lg border border-base-300">
+              <div>
+                <label className="text-xs font-semibold text-gray-400 block mb-1">
+                  Role
+                </label>
+                <select
+                  className="select select-bordered select-sm w-full"
+                  value={formData.role}
+                  onChange={(e) => {
+                    const newRole = e.target.value;
+                    setFormData({
+                      ...formData,
+                      role: newRole,
+                      skills: newRole === "user" ? "" : formData.skills,
+                    });
+                  }}
+                >
+                  <option value="user">User</option>
+                  <option value="moderator">Moderator</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
 
-              <input
-                type="text"
-                placeholder="Comma-separated skills"
-                className="input input-bordered w-full"
-                value={formData.skills}
-                onChange={(e) =>
-                  setFormData({ ...formData, skills: e.target.value })
-                }
-              />
+              <div>
+                <label className="text-xs font-semibold text-gray-400 block mb-1">
+                  Skills{" "}
+                  {formData.role === "user"
+                    ? "(Disabled for standard users)"
+                    : "(Comma-separated skills)"}
+                </label>
+                {formData.role === "user" ? (
+                  <div className="p-2 bg-base-300 rounded text-xs text-gray-400 border border-dashed border-gray-600">
+                    ⚠️ Skills cannot be assigned to standard users.
+                  </div>
+                ) : (
+                  <input
+                    type="text"
+                    placeholder="Comma-separated skills (e.g. react, nodejs, support)"
+                    className="input input-bordered input-sm w-full"
+                    value={formData.skills}
+                    onChange={(e) =>
+                      setFormData({ ...formData, skills: e.target.value })
+                    }
+                  />
+                )}
+              </div>
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 pt-1">
                 <button
                   className="btn btn-success btn-sm"
                   onClick={handleUpdate}

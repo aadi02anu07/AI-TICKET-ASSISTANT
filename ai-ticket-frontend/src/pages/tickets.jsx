@@ -16,6 +16,7 @@ export default function Tickets() {
     console.error(err);
   }
   const isAdmin = currentUser?.role === "admin";
+  const isModerator = currentUser?.role === "moderator";
 
   const fetchTickets = async () => {
     try {
@@ -119,7 +120,20 @@ export default function Tickets() {
         </button>
       </form>
 
-      <h2 className="text-xl font-semibold mb-2">All Tickets</h2>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-xl font-semibold">
+          {isModerator
+            ? "Tickets Assigned to Me"
+            : isAdmin
+            ? "All Tickets"
+            : "My Tickets"}
+        </h2>
+        {isModerator && (
+          <span className="badge badge-secondary text-xs">
+            Moderator: {currentUser?.email}
+          </span>
+        )}
+      </div>
       <div className="space-y-3">
         {tickets.map((ticket) => (
           <div
@@ -130,7 +144,22 @@ export default function Tickets() {
               to={`/tickets/${ticket._id}`}
               className="flex-1 pr-4"
             >
-              <h3 className="font-bold text-lg">{ticket.title}</h3>
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="font-bold text-lg">{ticket.title}</h3>
+                {ticket.status && (
+                  <span
+                    className={`badge badge-xs text-[10px] ${
+                      ticket.status === "RESOLVED"
+                        ? "badge-success"
+                        : ticket.status === "IN_PROGRESS"
+                        ? "badge-warning"
+                        : "badge-ghost"
+                    }`}
+                  >
+                    {ticket.status}
+                  </span>
+                )}
+              </div>
               <p className="text-sm">{ticket.description}</p>
               <p className="text-sm text-gray-500">
                 Created At: {new Date(ticket.createdAt).toLocaleString()}
@@ -146,7 +175,13 @@ export default function Tickets() {
             )}
           </div>
         ))}
-        {tickets.length === 0 && <p>No tickets submitted yet.</p>}
+        {tickets.length === 0 && (
+          <p className="text-gray-400">
+            {isModerator
+              ? "No tickets assigned to you yet."
+              : "No tickets submitted yet."}
+          </p>
+        )}
       </div>
     </div>
   );

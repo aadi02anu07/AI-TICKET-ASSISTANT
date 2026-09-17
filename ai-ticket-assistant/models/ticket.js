@@ -14,6 +14,19 @@ const ticketSchema = new mongoose.Schema({
   deadline: Date,
   helpfulNotes: String,
   relatedSkills: [String],
+  messages: [
+    {
+      sender: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+      },
+      senderEmail: { type: String, required: true },
+      senderRole: { type: String, required: true },
+      text: { type: String, required: true },
+      createdAt: { type: Date, default: Date.now },
+    },
+  ],
   createdAt: { type: Date, default: Date.now },
 });
 

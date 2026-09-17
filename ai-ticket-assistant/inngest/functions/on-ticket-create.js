@@ -61,9 +61,7 @@ export const onTicketCreated = inngest.createFunction(
         if (!user) {
           user = await User.findOne({ role: "moderator" });
         }
-        if (!user) {
-          user = await User.findOne({ role: "admin" });
-        }
+        // Never assign tickets to admins - only moderators
         await Ticket.findByIdAndUpdate(ticket._id, {
           assignedTo: user?._id || null,
         });
@@ -73,10 +71,30 @@ export const onTicketCreated = inngest.createFunction(
       await step.run("send-email-notification", async () => {
         if (moderator) {
           const finalTicket = await Ticket.findById(ticket._id);
+          const textBody = `Hello,\n\nA new ticket has been assigned to you:\n\nTitle: ${finalTicket.title}\nProblem Description:\n${finalTicket.description}\n\nPriority: ${(finalTicket.priority || "medium").toUpperCase()}\nRelated Skills: ${(finalTicket.relatedSkills || []).join(", ") || "General"}\n\nPlease log in to your Ticket AI dashboard to assist the user.`;
+
+          const htmlBody = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+              <h2 style="color: #4f46e5; margin-top: 0;">🎫 New Ticket Assigned</h2>
+              <p>Hello,</p>
+              <p>A new support ticket has been matched and assigned to your queue:</p>
+              <div style="background-color: #f8fafc; padding: 16px; border-radius: 6px; margin: 16px 0; border-left: 4px solid #4f46e5;">
+                <h3 style="margin-top: 0; color: #1e293b;">${finalTicket.title}</h3>
+                <p style="color: #475569; line-height: 1.5; white-space: pre-line;"><strong>Problem Description:</strong><br/>${finalTicket.description}</p>
+                <div style="margin-top: 12px; font-size: 13px; color: #64748b;">
+                  <span><strong>Priority:</strong> <span style="color: ${finalTicket.priority === 'high' ? '#dc2626' : '#2563eb'}; font-weight: bold;">${(finalTicket.priority || 'medium').toUpperCase()}</span></span>
+                  ${finalTicket.relatedSkills?.length ? `<span style="margin-left: 16px;"><strong>Related Skills:</strong> ${finalTicket.relatedSkills.join(', ')}</span>` : ''}
+                </div>
+              </div>
+              <p style="color: #64748b; font-size: 13px;">Please log in to your Ticket AI dashboard to view full AI notes and chat with the user.</p>
+            </div>
+          `;
+
           await sendMail(
             moderator.email,
-            "Ticket Assigned",
-            `A new ticket is assigned to you ${finalTicket.title}`
+            `Ticket Assigned: ${finalTicket.title}`,
+            textBody,
+            htmlBody
           );
         }
       });

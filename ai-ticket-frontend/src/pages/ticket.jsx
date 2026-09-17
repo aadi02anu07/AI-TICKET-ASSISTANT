@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
+import TicketChat from "../components/ticket-chat";
 
 export default function TicketDetailsPage() {
   const { id } = useParams();
@@ -221,6 +222,13 @@ export default function TicketDetailsPage() {
                 This ticket has been resolved.
               </p>
             )}
+
+            <TicketChat
+              ticketId={id}
+              ticket={ticket}
+              currentUser={currentUser}
+              token={token}
+            />
           </>
         )}
       </div>
