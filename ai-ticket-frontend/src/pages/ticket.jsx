@@ -127,11 +127,12 @@ export default function TicketDetailsPage() {
               </div>
             )}
 
-            {ticket.assignedTo && (
-              <p>
-                <strong>Assigned To:</strong> {ticket.assignedTo?.email}
-              </p>
-            )}
+            <p>
+              <strong>Assigned To:</strong>{" "}
+              {typeof ticket.assignedTo === "object"
+                ? ticket.assignedTo?.email || "Unassigned"
+                : ticket.assignedTo || "Unassigned"}
+            </p>
 
             {ticket.createdAt && (
               <p className="text-sm text-gray-500 mt-2">
@@ -145,13 +146,13 @@ export default function TicketDetailsPage() {
                 disabled={resolving}
                 className="btn btn-success btn-sm mt-2"
               >
-                {resolving ? "Resolving..." : "✅ Mark as Resolved"}
+                {resolving ? "Resolving..." : "Mark as Resolved"}
               </button>
             )}
 
             {ticket.status === "RESOLVED" && (
               <p className="text-green-400 font-semibold mt-2">
-                ✅ This ticket has been resolved.
+                This ticket has been resolved.
               </p>
             )}
           </>
