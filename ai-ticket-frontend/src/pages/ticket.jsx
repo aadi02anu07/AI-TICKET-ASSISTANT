@@ -36,11 +36,11 @@ export default function TicketDetailsPage() {
         if (res.ok) {
           setTicket(data.ticket);
         } else {
-          alert(data.message || "Failed to fetch ticket");
+          setTicket(null);
         }
       } catch (err) {
         console.error(err);
-        alert("Something went wrong");
+        setTicket(null);
       } finally {
         setLoading(false);
       }
@@ -108,7 +108,21 @@ export default function TicketDetailsPage() {
 
   if (loading)
     return <div className="text-center mt-10">Loading ticket details...</div>;
-  if (!ticket) return <div className="text-center mt-10">Ticket not found</div>;
+  if (!ticket)
+    return (
+      <div className="max-w-md mx-auto mt-16 p-6 card bg-gray-800 shadow-xl border text-center">
+        <h2 className="text-xl font-bold mb-2">Ticket Not Found</h2>
+        <p className="text-gray-400 text-sm mb-4">
+          This ticket does not exist or has already been deleted.
+        </p>
+        <button
+          onClick={() => navigate("/")}
+          className="btn btn-primary btn-sm mx-auto"
+        >
+          ← Back to All Tickets
+        </button>
+      </div>
+    );
 
   return (
     <div className="max-w-3xl mx-auto p-4">
