@@ -1,217 +1,185 @@
-# AI-Ticket-Assistant - ChaiCode
+# 🎫 AI Ticket Assistant
 
-Welcome to the AI-Powered Ticket Management System!
-This course is a part of Chaicode youtube video series. This project is a web application that uses AI to automatically categorize, prioritize, and assign support tickets to the most appropriate moderators.
+[![React](https://img.shields.io/badge/React-19.1-blue?logo=react)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-6.3-purple?logo=vite)](https://vite.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
+[![DaisyUI](https://img.shields.io/badge/DaisyUI-v5-5A0EF8?logo=daisyui)](https://daisyui.com/)
+[![Node.js](https://img.shields.io/badge/Node.js-22.x-green?logo=node.js)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/Express-5.x-black?logo=express)](https://expressjs.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb)](https://www.mongodb.com/)
+[![Inngest](https://img.shields.io/badge/Inngest-Event--Driven-FF5A5F?logo=inngest)](https://www.inngest.com/)
+[![Gemini AI](https://img.shields.io/badge/Google-Gemini_AI-4285F4?logo=google)](https://deepmind.google/technologies/gemini/)
 
-# AI-Powered Ticket Management System
+A full-stack, event-driven ticket management platform that uses **Google Gemini AI** to automatically categorize, prioritize, generate technical troubleshooting notes, and intelligently route support tickets to the best-qualified moderators based on skill matching.
 
-A smart ticket management system that uses AI to automatically categorize, prioritize, and assign support tickets to the most appropriate moderators.
+---
 
-## 🚀 Features
+## 🌐 Live Deployments
 
-- **AI-Powered Ticket Processing**
+- **Frontend (Vercel)**: [https://ai-ticket-frontend-phi.vercel.app/](https://ai-ticket-frontend-phi.vercel.app/)
+- **Backend API (Render)**: [https://ai-ticket-assistant-t6io.onrender.com/](https://ai-ticket-assistant-t6io.onrender.com/)
+- **Event Orchestrator**: [Inngest Cloud](https://app.inngest.com/)
 
-  - Automatic ticket categorization
-  - Smart priority assignment
-  - Skill-based moderator matching
-  - AI-generated helpful notes for moderators
+---
 
-- **Smart Moderator Assignment**
+## 🚀 Key Features
 
-  - Automatic matching of tickets to moderators based on skills
-  - Fallback to admin assignment if no matching moderator found
-  - Skill-based routing system
+- **🤖 Automated AI Ticket Triage**
+  - Instant background analysis powered by Google Gemini.
+  - Generates ticket **Priority** (`low`, `medium`, `high`).
+  - Identifies **Related Skills** (e.g. `React`, `MongoDB`, `Docker`).
+  - Writes comprehensive, technical **Helpful Notes** in Markdown with documentation links for fast resolution.
+  - Multi-model fallback sequence (`gemini-3.1-flash-lite` ➔ `gemini-3.5-flash-lite` ➔ `gemini-3.6-flash`) for zero downtime.
 
-- **User Management**
+- **🎯 Smart Skill-Based Routing**
+  - Evaluates all available moderators and admins.
+  - Automatically assigns the ticket to the engineer with the highest skill match score.
+  - Fallback assignment if no exact skill match is found.
 
-  - Role-based access control (User, Moderator, Admin)
-  - Skill management for moderators
-  - User authentication with JWT
+- **📧 Instant Email Notifications**
+  - Welcome emails triggered on new user signups.
+  - Real-time "Ticket Assigned" email alerts sent to the selected moderator via Nodemailer / SMTP.
 
-- **Background Processing**
-  - Event-driven architecture using Inngest
-  - Automated email notifications
-  - Asynchronous ticket processing
+- **🛡️ Role-Based Access Control (RBAC)**
+  - **User**: Submit tickets, track resolution status, view assigned moderator and AI helpful notes.
+  - **Moderator**: Manage and resolve assigned tickets matching their expertise.
+  - **Admin**: Access the Admin Panel, create moderators, update roles/skills, and delete tickets/users.
+
+- **⚡ Modern Responsive UI**
+  - Built with React 19, Tailwind CSS v4, and DaisyUI v5.
+  - Shared navigation layout with reactive session updates.
+  - One-click **Demo Test Credentials** on the login screen.
+  - Single-page application routing with Vercel rewrites.
+
+---
+
+## 🔑 One-Click Test Credentials
+
+You can log in instantly on the [Login Page](https://ai-ticket-frontend-phi.vercel.app/login) using the one-click buttons:
+
+| Role | Email | Password | Pre-Configured Skills |
+| :--- | :--- | :--- | :--- |
+| **Admin** | `admin@test.com` | `ADMIN@123` | `react, node, mongodb, express, system` |
+| **Moderator** | `moderator@test.com` | `MOD@123` | `docker, devops, linux, cloud, backend` |
+| **User** | `user@test.com` | `USER@123` | *(Customer account)* |
+
+---
+
+## 🏗️ Architecture Overview
+
+```mermaid
+flowchart LR
+    A[React 19 Frontend<br/>Vercel] -->|REST API| B[Express 5 Backend<br/>Render]
+    B -->|Mongoose| C[(MongoDB Atlas)]
+    B -->|Trigger Event| D[Inngest Event Runner]
+    D -->|Step 1-2| C
+    D -->|Step 3: Analyze| E[Google Gemini AI]
+    D -->|Step 4: Skill Matching| C
+    D -->|Step 5: Alert| F[Mailtrap SMTP]
+```
+
+---
 
 ## 🛠️ Tech Stack
 
-- **Backend**: Node.js with Express
-- **Database**: MongoDB
-- **Authentication**: JWT
-- **Background Jobs**: Inngest
-- **AI Integration**: Google Gemini API
-- **Email**: Nodemailer with Mailtrap
-- **Development**: Nodemon for hot reloading
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | React 19, Vite 6, React Router v7, Tailwind CSS v4, DaisyUI v5, Lucide / Heroicons |
+| **Backend** | Node.js 22, Express 5, Mongoose 8, JWT, bcrypt |
+| **Database** | MongoDB Atlas |
+| **Background Jobs** | Inngest Cloud & Inngest Express SDK |
+| **AI Integration** | Google Gemini Generative Language API |
+| **Email Delivery** | Nodemailer with Mailtrap |
+| **Hosting** | Vercel (SPA) + Render (Web Service) |
 
-## 📋 Prerequisites
+---
 
-- Node.js (v14 or higher)
-- MongoDB
-- Google Gemini API key
-- Mailtrap account (for email testing)
+## ⚙️ Local Development Setup
 
-## ⚙️ Installation
+### Prerequisites
+- Node.js (v18 or higher)
+- MongoDB Atlas cluster or local MongoDB instance
+- Google Gemini API Key
+- Mailtrap account (for testing emails)
+- Inngest CLI (optional for local event viewing)
 
-1. **Clone the repository**
+### 1. Clone the Repository
+```bash
+git clone https://github.com/aadi02anu07/AI-TICKET-ASSISTANT.git
+cd AI-TICKET-ASSISTANT
+```
 
-   ```bash
-   git clone <repository-url>
-   cd ai-ticket-assistant
-   ```
+### 2. Backend Setup
+```bash
+cd ai-ticket-assistant
+npm install
+```
 
-2. **Install dependencies**
+Create a `.env` file in `ai-ticket-assistant/`:
+```env
+PORT=3001
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+MAILTRAP_SMTP_HOST=sandbox.smtp.mailtrap.io
+MAILTRAP_SMTP_PORT=2525
+MAILTRAP_SMTP_USER=your_mailtrap_user
+MAILTRAP_SMTP_PASS=your_mailtrap_pass
+GEMINI_API_KEY=your_gemini_api_key
+APP_URL=http://localhost:3001
+```
 
-   ```bash
-   npm install
-   ```
+Start the backend:
+```bash
+# Terminal 1 - Express API Server
+npm run dev
 
-3. **Environment Setup**
-   Create a `.env` file in the root directory with the following variables:
+# Terminal 2 - Inngest Local Dev Server (optional)
+npm run inngest-dev
+```
 
-   ```env
-   # MongoDB
-   MONGO_URI=your_mongodb_uri
+### 3. Frontend Setup
+```bash
+cd ../ai-ticket-frontend
+npm install
+```
 
-   # JWT
-   JWT_SECRET=your_jwt_secret
+Create a `.env` file in `ai-ticket-frontend/`:
+```env
+VITE_SERVER_URL=http://localhost:3001/api
+```
 
-   # Email (Mailtrap)
-   MAILTRAP_SMTP_HOST=your_mailtrap_host
-   MAILTRAP_SMTP_PORT=your_mailtrap_port
-   MAILTRAP_SMTP_USER=your_mailtrap_user
-   MAILTRAP_SMTP_PASS=your_mailtrap_password
+Start the frontend:
+```bash
+npm run dev
+```
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-   # AI (Gemini)
-   GEMINI_API_KEY=your_gemini_api_key
-
-   # Application
-   APP_URL=http://localhost:3000
-   ```
-
-## 🚀 Running the Application
-
-1. **Start the main server**
-
-   ```bash
-   npm run dev
-   ```
-
-2. **Start the Inngest dev server**
-   ```bash
-   npm run inngest-dev
-   ```
+---
 
 ## 📝 API Endpoints
 
 ### Authentication
-
-- `POST /api/auth/signup` - Register a new user
-- `POST /api/auth/login` - Login and get JWT token
+- `POST /api/auth/signup` - Register a new account
+- `POST /api/auth/login` - Authenticate & obtain JWT
+- `POST /api/auth/logout` - Invalidate session
+- `GET /api/auth/users` - List all users *(Admin only)*
+- `POST /api/auth/create-moderator` - Create moderator profile *(Admin only)*
+- `POST /api/auth/update-user` - Update role & skills *(Admin only)*
+- `DELETE /api/auth/users/:id` - Delete user *(Admin only)*
 
 ### Tickets
+- `POST /api/tickets` - Create ticket & trigger Inngest AI triage
+- `GET /api/tickets` - Fetch tickets *(Users see own tickets; Staff see all)*
+- `GET /api/tickets/:id` - Fetch ticket details with AI helpful notes
+- `PATCH /api/tickets/:id/resolve` - Mark ticket as resolved *(Creator / Staff)*
+- `DELETE /api/tickets/:id` - Permanently delete ticket *(Admin only)*
 
-- `POST /api/tickets` - Create a new ticket
-- `GET /api/tickets` - Get all tickets for logged-in user
-- `GET /api/tickets/:id` - Get ticket details
+### System & Background Workflows
+- `GET /api/test` - Healthcheck endpoint
+- `ALL /api/inngest` - Inngest event bus endpoint
 
-### Admin
+---
 
-- `GET /api/auth/users` - Get all users (Admin only)
-- `POST /api/auth/update-user` - Update user role & skills (Admin only)
+## 📄 License
 
-## 🔄 Ticket Processing Flow
-
-1. **Ticket Creation**
-
-   - User submits a ticket with title and description
-   - System creates initial ticket record
-
-2. **AI Processing**
-
-   - Inngest triggers `on-ticket-created` event
-   - AI analyzes ticket content
-   - Generates:
-     - Required skills
-     - Priority level
-     - Helpful notes
-     - Ticket type
-
-3. **Moderator Assignment**
-
-   - System searches for moderators with matching skills
-   - Uses regex-based skill matching
-   - Falls back to admin if no match found
-   - Updates ticket with assignment
-
-4. **Notification**
-   - Sends email to assigned moderator
-   - Includes ticket details and AI-generated notes
-
-## 🧪 Testing
-
-1. **Start the Inngest dev server**
-
-   ```bash
-   npm run inngest-dev
-   ```
-
-   This will start the Inngest development server at http://localhost:8288
-
-2. **Test Ticket Creation**
-   ```bash
-   curl -X POST http://localhost:3000/api/tickets \
-   -H "Content-Type: application/json" \
-   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-   -d '{
-     "title": "Database Connection Issue",
-     "description": "Experiencing intermittent database connection timeouts"
-   }'
-   ```
-
-## 🔍 Troubleshooting
-
-### Common Issues
-
-1. **Port Conflicts**
-   If you see "address already in use" error:
-
-   ```bash
-   # Find process using port 8288
-   lsof -i :8288
-   # Kill the process
-   kill -9 <PID>
-   ```
-
-2. **AI Processing Errors**
-
-   - Verify GEMINI_API_KEY in .env
-   - Check API quota and limits
-   - Validate request format
-
-3. **Email Issues**
-   - Verify Mailtrap credentials
-   - Check SMTP settings
-   - Monitor email delivery logs
-
-## 📚 Dependencies
-
-- `@inngest/agent-kit`: ^0.7.3
-- `bcrypt`: ^5.1.1
-- `cors`: ^2.8.5
-- `dotenv`: ^16.5.0
-- `express`: ^5.1.0
-- `inngest`: ^3.35.0
-- `jsonwebtoken`: ^9.0.2
-- `mongoose`: ^8.13.2
-- `nodemailer`: ^6.10.1
-
-## 🤝 Contributing
-
-we don't accept contributions for this project, as this is a part of a video and code files needs to given as it is.
-
-## 🙏 Acknowledgments
-
-- Inngest for background job processing
-- Google Gemini for AI capabilities
-- Mailtrap for email testing
-- MongoDB for database
+This project is licensed under the ISC License.

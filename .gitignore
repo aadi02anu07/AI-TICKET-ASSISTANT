@@ -73,5 +73,6 @@ $RECYCLE.BIN/
 *.seed
 *.pid.lock
 
-# Documentation & Project-Specific Files
-readme.md
+# Project Documentation Scratch/Reference
+allabout.md
+allabout/
