@@ -75,6 +75,50 @@ export default function LoginPage() {
             </button>
           </div>
 
+          <div className="divider my-2 text-xs text-gray-400">Test Credentials</div>
+
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() =>
+                setForm({ email: "admin@test.com", password: "ADMIN@123" })
+              }
+              className="btn btn-outline btn-sm flex-1 text-xs"
+            >
+              Admin
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                setForm({ email: "moderator@test.com", password: "MOD@123" })
+              }
+              className="btn btn-outline btn-sm flex-1 text-xs"
+            >
+              Moderator
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                setForm({ email: "user@test.com", password: "USER@123" })
+              }
+              className="btn btn-outline btn-sm flex-1 text-xs"
+            >
+              User
+            </button>
+          </div>
+
+          <div className="text-[11px] text-gray-400 mt-2 space-y-1 bg-base-200 p-2.5 rounded border border-base-300">
+            <div>
+              <span className="font-semibold text-gray-300">Admin:</span> admin@test.com / ADMIN@123
+            </div>
+            <div>
+              <span className="font-semibold text-gray-300">Moderator:</span> moderator@test.com / MOD@123
+            </div>
+            <div>
+              <span className="font-semibold text-gray-300">User:</span> user@test.com / USER@123
+            </div>
+          </div>
+
           <p className="text-center text-sm mt-3">
             Don't have an account?{" "}
             <Link to="/signup" className="link link-primary">
