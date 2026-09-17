@@ -7,6 +7,7 @@ export default function TicketChat({ ticketId, ticket, currentUser, token }) {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   // Normalize creator and assignedTo IDs and emails
   const creatorId =
@@ -66,10 +67,11 @@ export default function TicketChat({ ticketId, ticket, currentUser, token }) {
     }
   };
 
-  // Poll for messages when chat drawer/modal is open
+  // Poll for messages when chat drawer/modal is open and focus input
   useEffect(() => {
     if (!isOpen || !canAccessChat) return;
 
+    setTimeout(() => inputRef.current?.focus(), 50);
     fetchMessages();
     const interval = setInterval(fetchMessages, 3000);
     return () => clearInterval(interval);
@@ -84,8 +86,11 @@ export default function TicketChat({ ticketId, ticket, currentUser, token }) {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!inputText.trim() || sending) return;
+    const textToSend = inputText.trim();
+    if (!textToSend || sending) return;
 
+    setInputText("");
+    inputRef.current?.focus();
     setSending(true);
     setError("");
     try {
@@ -97,13 +102,12 @@ export default function TicketChat({ ticketId, ticket, currentUser, token }) {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ text: inputText }),
+          body: JSON.stringify({ text: textToSend }),
         }
       );
 
       const data = await res.json();
       if (res.ok) {
-        setInputText("");
         setMessages(data.messages || []);
       } else {
         setError(data.message || "Failed to send message");
@@ -113,6 +117,7 @@ export default function TicketChat({ ticketId, ticket, currentUser, token }) {
       setError("Failed to send message. Please try again.");
     } finally {
       setSending(false);
+      setTimeout(() => inputRef.current?.focus(), 10);
     }
   };
 
@@ -263,12 +268,13 @@ export default function TicketChat({ ticketId, ticket, currentUser, token }) {
             className="p-3 bg-gray-900 border-t border-gray-800 flex gap-2 items-center"
           >
             <input
+              ref={inputRef}
               type="text"
               placeholder={`Message the ${otherRoleLabel.toLowerCase()}...`}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               className="input input-bordered input-sm flex-1 bg-gray-800 text-gray-100 text-sm focus:outline-none focus:border-indigo-500"
-              disabled={sending}
+              autoFocus
             />
             <button
               type="submit"
