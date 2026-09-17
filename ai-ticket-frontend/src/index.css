@@ -1,2 +1,14 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  min-height: 100vh;
+  background-color: #0f172a;
+  color: #f8fafc;
+}

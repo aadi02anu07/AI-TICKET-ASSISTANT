@@ -13,49 +13,53 @@ import Admin from "./pages/admin.jsx";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
-      <Navbar />
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <CheckAuth protected={true}>
-              <Tickets />
-            </CheckAuth>
-          }
-        />
-        <Route
-          path="/tickets/:id"
-          element={
-            <CheckAuth protected={true}>
-              <TicketDetailsPage />
-            </CheckAuth>
-          }
-        />
-        <Route
-          path="/login"
-          element={
-            <CheckAuth protected={false}>
-              <Login />
-            </CheckAuth>
-          }
-        />
-        <Route
-          path="/signup"
-          element={
-            <CheckAuth protected={false}>
-              <Signup />
-            </CheckAuth>
-          }
-        />
-        <Route
-          path="/admin"
-          element={
-            <CheckAuth protected={true}>
-              <Admin />
-            </CheckAuth>
-          }
-        />
-      </Routes>
+      <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col">
+        <Navbar />
+        <main className="flex-1">
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <CheckAuth protected={true}>
+                  <Tickets />
+                </CheckAuth>
+              }
+            />
+            <Route
+              path="/tickets/:id"
+              element={
+                <CheckAuth protected={true}>
+                  <TicketDetailsPage />
+                </CheckAuth>
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                <CheckAuth protected={false}>
+                  <Login />
+                </CheckAuth>
+              }
+            />
+            <Route
+              path="/signup"
+              element={
+                <CheckAuth protected={false}>
+                  <Signup />
+                </CheckAuth>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <CheckAuth protected={true}>
+                  <Admin />
+                </CheckAuth>
+              }
+            />
+          </Routes>
+        </main>
+      </div>
     </BrowserRouter>
   </StrictMode>
 );
