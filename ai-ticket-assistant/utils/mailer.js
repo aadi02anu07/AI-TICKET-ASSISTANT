@@ -13,7 +13,7 @@ export const sendMail = async (to, subject, text, html) => {
     });
 
     const mailOptions = {
-      from: '"Ticket AI Support" <noreply@ticketing.com>',
+      from: '"IntelliDesk Support" <noreply@ticketing.com>',
       to,
       subject,
       text,

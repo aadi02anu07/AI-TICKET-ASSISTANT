@@ -71,7 +71,7 @@ export const onTicketCreated = inngest.createFunction(
       await step.run("send-email-notification", async () => {
         if (moderator) {
           const finalTicket = await Ticket.findById(ticket._id);
-          const textBody = `Hello,\n\nA new ticket has been assigned to you:\n\nTitle: ${finalTicket.title}\nProblem Description:\n${finalTicket.description}\n\nPriority: ${(finalTicket.priority || "medium").toUpperCase()}\nRelated Skills: ${(finalTicket.relatedSkills || []).join(", ") || "General"}\n\nPlease log in to your Ticket AI dashboard to assist the user.`;
+          const textBody = `Hello,\n\nA new ticket has been assigned to you:\n\nTitle: ${finalTicket.title}\nProblem Description:\n${finalTicket.description}\n\nPriority: ${(finalTicket.priority || "medium").toUpperCase()}\nRelated Skills: ${(finalTicket.relatedSkills || []).join(", ") || "General"}\n\nPlease log in to your IntelliDesk dashboard to assist the user.`;
 
           const htmlBody = `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
@@ -86,7 +86,7 @@ export const onTicketCreated = inngest.createFunction(
                   ${finalTicket.relatedSkills?.length ? `<span style="margin-left: 16px;"><strong>Related Skills:</strong> ${finalTicket.relatedSkills.join(', ')}</span>` : ''}
                 </div>
               </div>
-              <p style="color: #64748b; font-size: 13px;">Please log in to your Ticket AI dashboard to view full AI notes and chat with the user.</p>
+              <p style="color: #64748b; font-size: 13px;">Please log in to your IntelliDesk dashboard to view full AI notes and chat with the user.</p>
             </div>
           `;
 
