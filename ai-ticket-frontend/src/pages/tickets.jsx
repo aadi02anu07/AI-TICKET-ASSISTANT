@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function Tickets() {
   const [form, setForm] = useState({ title: "", description: "" });
@@ -7,13 +7,6 @@ export default function Tickets() {
   const [loading, setLoading] = useState(false);
 
   const token = localStorage.getItem("token");
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/login");
-  };
 
   const fetchTickets = async () => {
     try {
@@ -67,15 +60,7 @@ export default function Tickets() {
 
   return (
     <div className="p-4 max-w-3xl mx-auto">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Create Ticket</h2>
-        <button
-          onClick={handleLogout}
-          className="text-gray-400 hover:text-white transition-colors text-sm"
-        >
-          Logout →
-        </button>
-      </div>
+      <h2 className="text-2xl font-bold mb-4">Create Ticket</h2>
 
       <form onSubmit={handleSubmit} className="space-y-3 mb-8">
         <input

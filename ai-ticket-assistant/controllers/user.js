@@ -1,6 +1,7 @@
 import brcypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
+import Ticket from "../models/ticket.js";
 import { inngest } from "../inngest/client.js";
 
 export const signup = async (req, res) => {
@@ -70,7 +71,7 @@ export const updateUser = async (req, res) => {
   const { skills = [], role, email } = req.body;
   try {
     if (req.user?.role !== "admin") {
-      return res.status(403).json({ eeor: "Forbidden" });
+      return res.status(403).json({ error: "Forbidden" });
     }
     const user = await User.findOne({ email });
     if (!user) return res.status(401).json({ error: "User not found" });
@@ -85,6 +86,35 @@ export const updateUser = async (req, res) => {
   }
 };
 
+export const deleteUser = async (req, res) => {
+  try {
+    if (req.user?.role !== "admin") {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    const { id } = req.params;
+
+    // Prevent admin from deleting their own account
+    if (req.user._id === id) {
+      return res
+        .status(400)
+        .json({ error: "Cannot delete your own admin account" });
+    }
+
+    const user = await User.findByIdAndDelete(id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Unassign tickets that were assigned to this deleted user
+    await Ticket.updateMany({ assignedTo: id }, { assignedTo: null });
+
+    return res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Delete failed", details: error.message });
+  }
+};
+
 export const getUsers = async (req, res) => {
   try {
     if (req.user.role !== "admin") {
@@ -94,6 +124,64 @@ export const getUsers = async (req, res) => {
     const users = await User.find().select("-password");
     return res.json(users);
   } catch (error) {
-    res.status(500).json({ error: "Update failed", details: error.message });
+    res.status(500).json({ error: "Fetch failed", details: error.message });
+  }
+};
+
+export const createModerator = async (req, res) => {
+  try {
+    if (req.user?.role !== "admin") {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    const { email, password, role = "moderator", skills = [] } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ error: "A user with this email already exists" });
+    }
+
+    const userPassword = password || "moderator123";
+    const hashed = await brcypt.hash(userPassword, 10);
+
+    const parsedSkills = Array.isArray(skills)
+      ? skills
+      : typeof skills === "string"
+      ? skills.split(",").map((s) => s.trim()).filter(Boolean)
+      : [];
+
+    const user = await User.create({
+      email: email.toLowerCase().trim(),
+      password: hashed,
+      role: role || "moderator",
+      skills: parsedSkills,
+    });
+
+    try {
+      await inngest.send({
+        name: "user/signup",
+        data: { email: user.email },
+      });
+    } catch (inngestErr) {
+      console.error("Inngest send error:", inngestErr.message);
+    }
+
+    const userObj = user.toObject();
+    delete userObj.password;
+
+    return res.status(201).json({
+      message: "Moderator created successfully",
+      user: userObj,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "Failed to create moderator", details: error.message });
   }
 };

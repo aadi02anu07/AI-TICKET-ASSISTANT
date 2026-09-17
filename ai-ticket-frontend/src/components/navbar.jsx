@@ -1,10 +1,16 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 export default function Navbar() {
+  useLocation();
   const token = localStorage.getItem("token");
-  let user = localStorage.getItem("user");
-  if (user) {
-    user = JSON.parse(user);
+  let user = null;
+  try {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      user = JSON.parse(storedUser);
+    }
+  } catch (err) {
+    console.error("Failed to parse user from localStorage:", err);
   }
   const navigate = useNavigate();
 
@@ -20,7 +26,7 @@ export default function Navbar() {
           Ticket AI
         </Link>
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-center">
         {!token ? (
           <>
             <Link to="/signup" className="btn btn-sm">
