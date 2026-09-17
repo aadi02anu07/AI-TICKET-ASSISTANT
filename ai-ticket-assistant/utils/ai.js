@@ -1,8 +1,15 @@
-const GEMINI_MODEL = "gemini-3.6-flash";
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+const CANDIDATE_MODELS = [
+  "gemini-3.1-flash-lite",
+  "gemini-3.5-flash-lite",
+  "gemini-3.6-flash",
+];
 
 const analyzeTicket = async (ticket) => {
   const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    console.error("GEMINI_API_KEY is not set");
+    return null;
+  }
 
   const prompt = `You are a ticket triage agent. Only return a strict JSON object with no extra text, headers, or markdown.
 
@@ -26,44 +33,49 @@ Ticket information:
 - Title: ${ticket.title}
 - Description: ${ticket.description}`;
 
-  try {
-    const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-      }),
-      signal: AbortSignal.timeout(30000), // 30s hard timeout
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      console.error("Gemini API error:", data?.error?.message);
-      return null;
-    }
-
-    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (!raw) {
-      console.error("Gemini returned empty content");
-      return null;
-    }
+  for (const model of CANDIDATE_MODELS) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
     try {
-      // Strip markdown fences if the model added them despite instructions
-      const match = raw.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
-      const jsonString = match ? match[1] : raw.trim();
-      return JSON.parse(jsonString);
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+        }),
+        signal: AbortSignal.timeout(30000), // 30s hard timeout
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.warn(`Gemini model ${model} error:`, data?.error?.message);
+        continue;
+      }
+
+      const raw = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (!raw) {
+        console.warn(`Gemini model ${model} returned empty content`);
+        continue;
+      }
+
+      try {
+        const match = raw.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+        const jsonString = match ? match[1] : raw.trim();
+        const parsed = JSON.parse(jsonString);
+        return parsed;
+      } catch (e) {
+        console.warn(`Failed to parse JSON from ${model}:`, e.message);
+        continue;
+      }
     } catch (e) {
-      console.error("Failed to parse JSON from Gemini response:", e.message);
-      console.error("Raw output was:", raw);
-      return null;
+      console.warn(`Gemini fetch error on ${model}:`, e.message);
     }
-  } catch (e) {
-    console.error("Gemini fetch error:", e.message);
-    return null;
   }
+
+  console.error("All Gemini candidate models failed");
+  return null;
 };
 
 export default analyzeTicket;
